@@ -1,0 +1,30 @@
+#Please use image registry.access.redhat.com/ubi8/ubi:8.4
+FROM registry.access.redhat.com/ubi8/ubi:8.4
+
+#Set yourself as the Maintainer of this image.
+MAINTAINER wiem
+#Provide a brief description of the image.
+LABEL description='My nginx'
+#Install nginx and unzip
+RUN echo 'proxy=http://10.1.10.2:8080' | tee -a /etc/yum.conf && \
+    echo 'proxy_username=usrct6dgsm' | tee -a /etc/yum.conf && \
+    echo 'proxy_password=cZF$Eyyo' | tee -a /etc/yum.conf && \
+    yum install -y nginx unzip && \
+    yum clean all
+#Use ENV to set the variable PORT to 90
+ENV PORT 90
+#Use the variable $PORT to expose the set port
+EXPOSE ${PORT}
+#Copy nginx_conf.zip to /tmp/
+COPY nginx_conf.zip /tmp/
+#Extract /tmp/nginx_conf.zip to /etc/nginx and overwrite any existing files (hint use -o and -d options for unzip)
+RUN unzip -o nginx_conf.zip -d /etc/nginx && \
+#Extract llama_cart.tar to /usr/share/nginx/html/
+    unzip -o llama_cart.tar -d /usr/share/nginx/html/
+#Set the workdir to /tar_file/ and copy llama_cart.tar to this directory without uncompressing it.
+WORKDIR /tar_file/
+RUN cp llama_cart.tar /tar_file/
+#Set the container to start "nginx" with options "-g" and "daemon off" as overwritable options(hint: use ENTRYPOINT and CMD).
+ENTRYPOINT ["nginx"]
+
+CMD ["-g", "daemon off"]
